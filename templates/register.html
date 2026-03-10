@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Registration — AttendAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0c0e0f;--surface:#131618;--surface2:#1a1d1f;
+      --border:#222628;--border2:#2a2e30;
+      --accent:#3b82f6;--accent-lo:rgba(59,130,246,.1);
+      --green:#22c55e;--green-lo:rgba(34,197,94,.08);--red:#ef4444;
+      --text:#e8eaeb;--text-2:#7d8590;--text-3:#444c56;
+      --sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+    }
+    html,body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;min-height:100%;}
+    body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,#1e2326 1px,transparent 1px);background-size:28px 28px;opacity:.4;pointer-events:none;z-index:0;}
+
+    header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;border-bottom:1px solid var(--border);background:rgba(13,15,16,.92);backdrop-filter:blur(12px);}
+    .brand{display:flex;align-items:center;gap:8px;}
+    .brand-mark{width:26px;height:26px;background:var(--accent);border-radius:6px;display:grid;place-items:center;}
+    .brand-mark svg{width:13px;height:13px;fill:none;stroke:#fff;stroke-width:2;}
+    .brand-name{font-size:.8rem;font-weight:600;}
+    .brand-sep{width:1px;height:12px;background:var(--border2);margin:0 8px;}
+    .brand-sub{font-size:.72rem;color:var(--text-2);}
+
+    .page{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:28px 20px 60px;}
+
+    .page-title{font-size:1.3rem;font-weight:600;margin-bottom:4px;}
+    .page-sub{font-size:.78rem;color:var(--text-2);margin-bottom:24px;}
+
+    .flash-ok  {padding:10px 14px;border-radius:8px;font-size:.78rem;margin-bottom:16px;background:var(--green-lo);border:1px solid rgba(34,197,94,.2);color:var(--green);}
+    .flash-err {padding:10px 14px;border-radius:8px;font-size:.78rem;margin-bottom:16px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--red);}
+
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;}
+
+    .card-title{font-size:.68rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);margin-bottom:16px;}
+
+    .field{margin-bottom:16px;}
+    .field:last-child{margin-bottom:0;}
+    .field label{display:block;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2);margin-bottom:6px;}
+    .field input,.field select{
+      width:100%;padding:10px 14px;
+      background:var(--surface2);border:1px solid var(--border2);
+      border-radius:8px;color:var(--text);font-family:var(--sans);font-size:.85rem;
+      outline:none;transition:border-color .18s;
+    }
+    .field input:focus,.field select:focus{border-color:var(--accent);}
+    .field select option{background:var(--surface2);}
+
+    /* Photo upload */
+    .photo-zone{
+      border:2px dashed var(--border2);border-radius:10px;
+      padding:28px;text-align:center;cursor:pointer;
+      transition:border-color .2s,background .2s;
+      position:relative;
+    }
+    .photo-zone:hover{border-color:var(--accent);background:var(--accent-lo);}
+    .photo-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+    .photo-icon{width:36px;height:36px;stroke:var(--text-3);stroke-width:1.5;fill:none;margin:0 auto 8px;}
+    .photo-label{font-size:.82rem;color:var(--text-2);margin-bottom:4px;}
+    .photo-sub{font-size:.68rem;color:var(--text-3);}
+    .photo-preview{max-width:100%;max-height:160px;border-radius:8px;margin-top:12px;display:none;}
+
+    .btn{
+      width:100%;padding:12px;
+      background:var(--accent);border:none;border-radius:8px;
+      color:#fff;font-family:var(--sans);font-size:.88rem;font-weight:600;
+      cursor:pointer;transition:opacity .18s;display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .btn:hover{opacity:.88;}
+    .btn svg{width:15px;height:15px;stroke:#fff;stroke-width:2;fill:none;}
+
+    footer{position:fixed;bottom:0;left:0;right:0;height:48px;display:flex;align-items:center;justify-content:center;border-top:1px solid var(--border);background:rgba(13,15,16,.9);font-size:.62rem;color:var(--text-3);font-family:var(--mono);}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+    <span class="brand-name">AttendAI</span>
+    <div class="brand-sep"></div>
+    <span class="brand-sub">Student Registration</span>
+  </div>
+</header>
+
+<div class="page">
+  <div class="page-title">Register Yourself</div>
+  <p class="page-sub">Fill in your details and upload a clear face photo to register.</p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash-{{ 'ok' if cat == 'success' else 'err' }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST" enctype="multipart/form-data">
+
+    <div class="card" style="animation-delay:.05s">
+      <div class="card-title">Personal Information</div>
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" name="name" placeholder="Enter your full name" required/>
+      </div>
+      <div class="field">
+        <label>Class / Department</label>
+        <input type="text" name="class_dept" placeholder="e.g. Class 10-A or CSE 2nd Year" required/>
+      </div>
+      <div class="field">
+        <label>Phone Number</label>
+        <input type="tel" name="phone" placeholder="+91 XXXXX XXXXX" required/>
+      </div>
+    </div>
+
+    <div class="card" style="animation-delay:.1s">
+      <div class="card-title">Face Photo</div>
+      <div class="photo-zone" id="photoZone">
+        <input type="file" name="photo" accept="image/*" id="photoInput" required onchange="previewPhoto(this)"/>
+        <svg class="photo-icon" viewBox="0 0 24 24" id="photoIcon"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg>
+        <div class="photo-label" id="photoLabel">Click or tap to upload photo</div>
+        <div class="photo-sub">JPG or PNG · Max 10MB · Clear face photo</div>
+        <img class="photo-preview" id="photoPreview" alt="Preview"/>
+      </div>
+    </div>
+
+    <div class="card" style="animation-delay:.15s;padding:0;overflow:hidden;background:transparent;border:none;">
+      <button class="btn" type="submit">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Complete Registration
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<footer>ATTENDAI · STUDENT REGISTRATION PORTAL</footer>
+
+<script>
+  function previewPhoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+    document.getElementById('photoIcon').style.display = 'none';
+    document.getElementById('photoLabel').textContent = file.name;
+    const preview = document.getElementById('photoPreview');
+    preview.style.display = 'block';
+    preview.src = URL.createObjectURL(file);
+  }
+</script>
+</body>
+</html>

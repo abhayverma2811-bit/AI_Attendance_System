@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trainer Dashboard — AttendAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0c0e0f;--surface:#131618;--surface2:#0f1214;--border:#222628;--border2:#2a2e30;--accent:#3b82f6;--accent-lo:rgba(59,130,246,.08);--green:#22c55e;--green-lo:rgba(34,197,94,.08);--amber:#f59e0b;--red:#ef4444;--text:#e8eaeb;--text-2:#7d8590;--text-3:#444c56;--mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--radius:10px;}
+    html,body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+    body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,#1e2326 1px,transparent 1px);background-size:28px 28px;opacity:.4;pointer-events:none;z-index:0;}
+
+    header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:58px;border-bottom:1px solid var(--border);background:rgba(13,15,16,.92);backdrop-filter:blur(12px);}
+    .brand{display:flex;align-items:center;gap:10px;}
+    .brand-mark{width:28px;height:28px;background:var(--accent);border-radius:7px;display:grid;place-items:center;}
+    .brand-mark svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2;}
+    .brand-name{font-size:.825rem;font-weight:600;}
+    .brand-sep{width:1px;height:14px;background:var(--border2);margin:0 10px;}
+    .brand-sub{font-size:.75rem;color:var(--text-2);}
+    .header-right{display:flex;align-items:center;gap:12px;}
+
+    .nav-link{display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border2);border-radius:7px;font-size:.75rem;color:var(--text-2);text-decoration:none;transition:border-color .15s,color .15s;}
+    .nav-link:hover{border-color:var(--text-2);color:var(--text);}
+    .nav-link svg{width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;}
+    .nav-link.danger{color:#ef4444;border-color:rgba(239,68,68,.2);}
+    .nav-link.danger:hover{border-color:#ef4444;}
+
+    #clock{font-family:var(--mono);font-size:.75rem;color:var(--text-2);}
+
+    .page{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:24px 28px 70px;}
+
+    .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;}
+    .page-title{font-size:1.3rem;font-weight:600;margin-bottom:4px;}
+    .page-sub{font-size:.75rem;color:var(--text-2);font-family:var(--mono);}
+
+    .top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+
+    .date-select{padding:7px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:.75rem;outline:none;cursor:pointer;}
+    .date-select option{background:var(--surface);}
+
+    .export-btn{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;font-size:.75rem;font-weight:500;cursor:pointer;text-decoration:none;transition:background .15s,border-color .15s;border:1px solid;}
+    .export-csv{background:var(--green-lo);color:var(--green);border-color:rgba(34,197,94,.2);}
+    .export-csv:hover{background:rgba(34,197,94,.13);}
+    .export-pdf{background:rgba(239,68,68,.07);color:#ef4444;border-color:rgba(239,68,68,.2);}
+    .export-pdf:hover{background:rgba(239,68,68,.13);}
+    .export-btn svg{width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;}
+
+    .scan-btn{display:flex;align-items:center;gap:6px;padding:7px 13px;background:var(--accent-lo);border:1px solid rgba(59,130,246,.22);border-radius:8px;color:var(--accent);font-size:.75rem;font-weight:500;cursor:pointer;text-decoration:none;transition:background .15s;}
+    .scan-btn:hover{background:rgba(59,130,246,.14);}
+    .scan-btn svg{width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none;}
+
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;}
+    .stat-card:nth-child(1){animation-delay:.06s}.stat-card:nth-child(2){animation-delay:.1s}.stat-card:nth-child(3){animation-delay:.14s}.stat-card:nth-child(4){animation-delay:.18s}
+    .stat-label{font-size:.63rem;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:7px;}
+    .stat-value{font-size:1.4rem;font-weight:600;line-height:1;margin-bottom:3px;}
+    .stat-sub{font-size:.68rem;color:var(--text-2);}
+    .stat-value.green{color:var(--green)}.stat-value.blue{color:var(--accent)}
+
+    .table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) .22s both;}
+    .table-topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--border);}
+    .table-title{font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);}
+    .search-wrap{position:relative;display:flex;align-items:center;}
+    .search-icon{position:absolute;left:10px;width:13px;height:13px;stroke:var(--text-3);stroke-width:2;fill:none;pointer-events:none;}
+    #searchInput{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:6px 12px 6px 30px;font-family:var(--sans);font-size:.75rem;color:var(--text);outline:none;width:190px;transition:border-color .15s;}
+    #searchInput::placeholder{color:var(--text-3);}
+    #searchInput:focus{border-color:var(--accent);}
+
+    .tbl-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;}
+    thead tr{border-bottom:1px solid var(--border);}
+    tbody tr{border-bottom:1px solid var(--border);transition:background .12s;}
+    tbody tr:last-child{border:none;}
+    tbody tr:hover{background:rgba(255,255,255,.02);}
+    th{padding:10px 18px;text-align:left;font-size:.63rem;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);font-weight:500;}
+    td{padding:12px 18px;font-size:.78rem;color:var(--text-2);}
+    .td-name{font-weight:500;color:var(--text);display:flex;align-items:center;gap:10px;}
+    .avatar{width:28px;height:28px;border-radius:50%;background:var(--accent-lo);border:1px solid rgba(59,130,246,.2);display:grid;place-items:center;font-size:.68rem;font-weight:600;color:var(--accent);flex-shrink:0;}
+    .td-time{font-family:var(--mono);font-size:.73rem;}
+    .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:.66rem;font-weight:500;}
+    .badge.present{background:var(--green-lo);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+    .badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+    .empty-state{display:flex;flex-direction:column;align-items:center;padding:50px 20px;gap:8px;}
+    .empty-icon{width:38px;height:38px;stroke:var(--text-3);stroke-width:1.5;fill:none;margin-bottom:4px;}
+    .empty-title{font-size:.85rem;font-weight:500;color:var(--text-2);}
+    .empty-sub{font-size:.72rem;color:var(--text-3);}
+
+    footer{position:fixed;bottom:0;left:0;right:0;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-top:1px solid var(--border);background:rgba(13,15,16,.92);backdrop-filter:blur(12px);font-size:.62rem;color:var(--text-3);font-family:var(--mono);letter-spacing:.05em;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+    <span class="brand-name">AttendAI</span>
+    <div class="brand-sep"></div>
+    <span class="brand-sub">Trainer Dashboard</span>
+  </div>
+  <div class="header-right">
+    <a href="/admin/students" class="nav-link"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Students</a>
+    <a href="/admin/qr-page" class="nav-link"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5"/><rect x="16" y="3" width="5" height="5"/><rect x="3" y="16" width="5" height="5"/><rect x="11" y="11" width="2" height="2"/><rect x="15" y="11" width="2" height="2"/><rect x="19" y="11" width="2" height="2"/><rect x="11" y="15" width="2" height="2"/><rect x="15" y="19" width="2" height="2"/><rect x="19" y="15" width="2" height="2"/></svg>QR Code</a>
+    {% if session.admin_role == 'superadmin' %}
+    <a href="/admin/admins" class="nav-link"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Admins</a>
+    {% endif %}
+    <a href="/logout" class="nav-link danger"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout</a>
+    <div id="clock">00:00:00</div>
+  </div>
+</header>
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Attendance Report</div>
+      <div class="page-sub">Logged in as {{ session.admin_user }} · {{ date }}</div>
+    </div>
+    <div class="top-actions">
+      <!-- Date picker -->
+      <form method="GET" id="dateForm">
+        <select class="date-select" name="date" onchange="document.getElementById('dateForm').submit()">
+          {% for d in all_dates %}
+            <option value="{{ d }}" {% if d == date %}selected{% endif %}>{{ d }}</option>
+          {% endfor %}
+          {% if not all_dates %}
+            <option value="{{ date }}">{{ date }}</option>
+          {% endif %}
+        </select>
+      </form>
+      <!-- Export -->
+      <a href="/export/csv?date={{ date }}" class="export-btn export-csv">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        CSV
+      </a>
+      <a href="/export/pdf?date={{ date }}" class="export-btn export-pdf">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        PDF
+      </a>
+      <a href="/" class="scan-btn">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M3 9V6a1 1 0 0 1 1-1h3M15 5h3a1 1 0 0 1 1 1v3M21 15v3a1 1 0 0 1-1 1h-3M9 19H6a1 1 0 0 1-1-1v-3"/></svg>
+        New Scan
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Present Today</div>
+      <div class="stat-value green">{{ total }}</div>
+      <div class="stat-sub">{{ date }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Selected Date</div>
+      <div class="stat-value blue" style="font-size:.95rem;padding-top:5px;">{{ date }}</div>
+      <div class="stat-sub">Viewing records</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Method</div>
+      <div class="stat-value" style="font-size:.95rem;padding-top:5px;color:var(--text);">Face ID</div>
+      <div class="stat-sub">HOG + CNN</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">System</div>
+      <div class="stat-value" style="font-size:.95rem;padding-top:5px;color:var(--green);">Online</div>
+      <div class="stat-sub">v3.0.0</div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card">
+    <div class="table-topbar">
+      <span class="table-title">Records for {{ date }}</span>
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="text" placeholder="Search name…" oninput="filterTable()"/>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      {% if tables %}
+      <table id="attendTable">
+        <thead><tr><th>#</th><th>Name</th><th>Time</th><th>Status</th></tr></thead>
+        <tbody id="tableBody">
+          {% for row in tables %}
+          <tr>
+            <td style="font-family:var(--mono);font-size:.7rem;color:var(--text-3);">{{ loop.index }}</td>
+            <td><div class="td-name"><div class="avatar">{{ row.Name[0] }}</div>{{ row.Name }}</div></td>
+            <td class="td-time">{{ row.Time }}</td>
+            <td><span class="badge present"><span class="badge-dot"></span>{{ row.Status }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <svg class="empty-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <div class="empty-title">No records for {{ date }}</div>
+        <div class="empty-sub">Try selecting a different date above.</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>ATTENDAI · TRAINER DASHBOARD</span>
+  <span id="footerDate"></span>
+  <span>v3.0.0</span>
+</footer>
+
+<script>
+  function tick(){
+    const n=new Date();
+    document.getElementById('clock').textContent=n.toTimeString().slice(0,8);
+    document.getElementById('footerDate').textContent=n.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+  }
+  tick();setInterval(tick,1000);
+  function filterTable(){
+    const q=document.getElementById('searchInput').value.toLowerCase();
+    document.querySelectorAll('#tableBody tr').forEach(r=>{
+      r.style.display=r.cells[1]?.textContent.toLowerCase().includes(q)?'':'none';
+    });
+  }
+</script>
+</body>
+</html>

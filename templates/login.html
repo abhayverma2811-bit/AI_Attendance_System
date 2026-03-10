@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login — AttendAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0c0e0f;--surface:#131618;--surface2:#1a1d1f;
+      --border:#222628;--border2:#2a2e30;
+      --accent:#3b82f6;--accent-lo:rgba(59,130,246,.08);
+      --green:#22c55e;--red:#ef4444;
+      --text:#e8eaeb;--text-2:#7d8590;--text-3:#444c56;
+      --sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+    }
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+    body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,#1e2326 1px,transparent 1px);background-size:28px 28px;opacity:.4;pointer-events:none;}
+
+    .page{position:relative;z-index:1;height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:40px 44px;width:100%;max-width:400px;animation:popUp .5s cubic-bezier(.22,1,.36,1) both;}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);border-radius:14px 14px 0 0;}
+
+    .logo-wrap{display:flex;align-items:center;gap:10px;margin-bottom:28px;justify-content:center;}
+    .logo-mark{width:36px;height:36px;background:var(--accent);border-radius:9px;display:grid;place-items:center;}
+    .logo-mark svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;}
+    .logo-text{font-size:1.1rem;font-weight:700;letter-spacing:.01em;}
+
+    h2{font-size:1.2rem;font-weight:600;margin-bottom:6px;text-align:center;}
+    .sub{font-size:.78rem;color:var(--text-2);text-align:center;margin-bottom:28px;}
+
+    .flash{padding:10px 14px;border-radius:8px;font-size:.78rem;margin-bottom:18px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#ef4444;}
+
+    .field{margin-bottom:16px;}
+    .field label{display:block;font-size:.72rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-2);margin-bottom:6px;}
+    .field input{
+      width:100%;padding:10px 14px;
+      background:var(--surface2);border:1px solid var(--border2);
+      border-radius:8px;color:var(--text);font-family:var(--sans);font-size:.85rem;
+      outline:none;transition:border-color .18s;
+    }
+    .field input:focus{border-color:var(--accent);}
+
+    .btn{
+      width:100%;padding:11px;margin-top:8px;
+      background:var(--accent);border:none;border-radius:8px;
+      color:#fff;font-family:var(--sans);font-size:.85rem;font-weight:600;
+      cursor:pointer;transition:opacity .18s;
+    }
+    .btn:hover{opacity:.88;}
+
+    .footer-note{text-align:center;margin-top:20px;font-size:.68rem;font-family:var(--mono);color:var(--text-3);}
+
+    @keyframes popUp{from{opacity:0;transform:scale(.96) translateY(12px)}to{opacity:1;transform:none}}
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="card" style="position:relative;">
+    <div class="logo-wrap">
+      <div class="logo-mark"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+      <span class="logo-text">AttendAI</span>
+    </div>
+    <h2>Admin Login</h2>
+    <p class="sub">Sign in to access the dashboard</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Enter username" required autofocus/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter password" required/>
+      </div>
+      <button class="btn" type="submit">Sign In →</button>
+    </form>
+
+    <p class="footer-note">AttendAI v3.0 · Face Recognition System</p>
+  </div>
+</div>
+</body>
+</html>
